@@ -13,6 +13,14 @@ namespace Whatsapp.Repositories
         {
             _context = context;
         }
+
+        public async Task<User?> GetUserAsync(int userId)
+        {
+            return await _context.Users
+                .Where(u => u.Id == userId)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<ICollection<User>> GetContactsAsync(int userId)
         {
             var contactsList = await _context.Contacts
@@ -26,6 +34,13 @@ namespace Whatsapp.Repositories
                 .ToListAsync();
 
             return contacts;
+        }
+
+        public async Task<User?> GetUserByPhoneAsync(string phoneNumber)
+        {
+            return await _context.Users
+                .Where(u => u.Phone == phoneNumber)
+                .FirstOrDefaultAsync();
         }
     }
 }

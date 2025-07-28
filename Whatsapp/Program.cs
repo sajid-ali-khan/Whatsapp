@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Whatsapp.Data;
+using Whatsapp.Interfaces;
+using Whatsapp.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,9 @@ builder.Services.AddDbContext<WhatsappDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+// Register repositories
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();
 
