@@ -7,5 +7,7 @@ namespace Whatsapp.Interfaces
         Task<User?> GetUserAsync(int userId);
         Task<ICollection<User>> GetContactsAsync(int userId);
         Task<User?> GetUserByPhoneAsync(string phoneNumber);
+        Task<bool> AddUserAsync(User user);
+        Task<bool> SaveChangesAsync();
     }
 }

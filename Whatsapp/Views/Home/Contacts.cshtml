@@ -1,0 +1,72 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<div class="container min-vh-100 d-flex flex-column align-items-center justify-content-start py-5" style="max-width: 500px;">
+    <h2 class="mb-4">Contacts</h2>
+    <div data-bind="foreach: contacts" class="w-100">
+        <div class="card w-100 my-2 btn" data-bind="click: $parent.goToChat">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-dark d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                </div>
+                <p class="" data-bind="text: name"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/knockout-3.5.1.js"></script>
+<script>
+    let viewModel;
+
+    function Contact(id, phone, name){
+        const self = this;
+        self.userId = id;
+        self.phone = phone;
+        self.name = name;
+    }
+
+    function ContactViewModel(){
+        const self = this;
+        self.contacts = ko.observableArray();
+
+        self.goToChat = function(contact) {
+            console.log(contact);
+            localStorage.setItem("otherId", JSON.stringify(contact.userId));
+            window.location.href = "/Home/Chat"
+        }
+        return self;
+    }
+
+    viewModel = new ContactViewModel();
+    ko.applyBindings(viewModel);
+    async function fetchContacts(userId){
+            const response = await fetch("/api/user/" + userId + "/contacts", {
+                method: 'GET'
+            });
+
+            if (response.ok){
+                const data = await response.json();
+                console.log(data);
+                
+                data.forEach((item) => {
+                    const newContact = new Contact(
+                        item.id,
+                        item.phone,
+                        item.name
+                    );
+
+                    viewModel.contacts.push(newContact);
+                });
+                return;
+            }
+            alert('No concats')
+        }
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        const userId = JSON.parse(localStorage.getItem("userId"));
+
+        await fetchContacts(userId);
+    })
+</script>

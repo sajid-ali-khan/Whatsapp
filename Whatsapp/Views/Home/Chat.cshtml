@@ -1,0 +1,132 @@
+﻿<div class="container min-vh-100 d-flex flex-column py-5" style="min-width: 400px;">
+    <div class="bg-dark text-white">
+        <h3 data-bind="text: person"></h3>
+    </div>
+
+    <div data-bind="foreach: chat" class="h-[60%]">
+        <div class="my-1 rounded-2 w-100 d-flex flex-column gap-0"
+             data-bind="style: { backgroundColor: userId === $root.currentUser() ? 'teal' : 'cyan', color: userId === $root.currentUser() ? 'white': 'black' }"
+             style="display: block;">
+            <p data-bind="text: content" class=""></p>
+            <p data-bind="text: time" style="font-size: .5rem"></p>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <input id="chatInput" class="form-control flex-grow-1"  />
+        <button type="submit" class="btn btn-success" id="btnSend">Send</button>
+    </div>
+
+</div>
+
+<script src="~/js/knockout-3.5.1.js"></script>
+<script>
+    let contactId;
+    let user;
+    let other;
+
+    function Message(userId, content, time) {
+        this.userId = userId;
+        this.content = content;
+        this.time = time;
+    }
+
+    function MessageViewModel() {
+        this.person = ko.observable(""); 
+        this.chat = ko.observableArray();
+        this.currentUser = ko.observable();
+    }
+
+    const viewModel = new MessageViewModel();
+    ko.applyBindings(viewModel);
+
+    const chatInput = document.getElementById('chatInput');
+    const btnSend = document.getElementById('btnSend');
+
+    btnSend.addEventListener('click', async function () {
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        const messageBody = JSON.stringify({
+            ContactId: contactId,
+            SenderId: user,
+            Content: message
+        });
+
+        const response = await fetch('/api/message/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: messageBody
+        });
+
+        if (response.ok) {
+            chatInput.value = ""; 
+            await fetchChat();  
+        } else {
+            console.log('Internal Server error.' + response.status + ':' + response.statusText);
+        }
+    });
+
+    async function fetchChat() {
+        const contactDto = new URLSearchParams({
+            User1Id: user,
+            User2Id: other
+        });
+
+        const response = await fetch(`/api/contacts/users/with?${contactDto.toString()}`, {
+            method: 'GET'
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            contactId = data.id;
+
+            const res = await fetch(`/api/message/contact/${contactId}`, {
+                method: 'GET'
+            });
+
+            if (res.ok) {
+                const data2 = await res.json();
+
+                viewModel.chat.removeAll();
+
+                data2.forEach(item => {
+                    const msg = new Message(item.senderId, item.content, item.sentAt);
+                    viewModel.chat.push(msg);
+                });
+            }
+        } else {
+            console.error("Failed to fetch chat data");
+        }
+    }
+
+    async function fetchUserDetails(otherId){
+        const response = await fetch(`/api/user/${otherId}`, {
+            method: 'GET'
+        });
+
+        if (response.ok){
+            const data = await response.json();
+
+            return `${data.name} (${data.phone})`
+        }
+        return otherId;
+    }
+
+    document.addEventListener('DOMContentLoaded', async function () {
+        const userId = JSON.parse(localStorage.getItem("userId"));
+        const otherId = JSON.parse(localStorage.getItem("otherId"));
+
+        user = userId;
+        other = otherId;
+
+
+
+        viewModel.person(await fetchUserDetails(other));
+        viewModel.currentUser(user);
+
+        await fetchChat();
+    });
+</script>

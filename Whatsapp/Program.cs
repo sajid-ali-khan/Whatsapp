@@ -19,6 +19,8 @@ builder.Services.AddDbContext<WhatsappDbContext>(options =>
 
 // Register repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IContactsRepository, ContactsRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
 var app = builder.Build();
 

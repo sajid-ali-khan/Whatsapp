@@ -22,13 +22,20 @@ namespace Whatsapp.Repositories
 
         public async Task<bool> AddContactAsync(Contact contact)
         {
-            _context.Contacts.Add(contact);
+            await _context.Contacts.AddAsync(contact);
             return await SaveChangesAsync();
         }
 
         public async Task<bool> SaveChangesAsync()
         {
             return (await _context.SaveChangesAsync()) > 0;
+        }
+
+        public async Task<Contact> GetContactWithUsers(int user1, int user2)
+        {
+            return await _context.Contacts
+                .Where(c => (c.User1Id == user1 && c.User2Id == user2) || (c.User1Id == user2 && c.User2Id == user1))
+                .FirstOrDefaultAsync();
         }
     }
 }

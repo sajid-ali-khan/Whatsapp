@@ -15,6 +15,27 @@ namespace Whatsapp.Controllers
 
         public IActionResult Index()
         {
+
+            return View();
+        }
+
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        public IActionResult Contacts()
+        {
+            return View();
+        }
+
+        public IActionResult NewContact()
+        {
+            return View();
+        }
+
+        public IActionResult Chat()
+        {
             return View();
         }
     }

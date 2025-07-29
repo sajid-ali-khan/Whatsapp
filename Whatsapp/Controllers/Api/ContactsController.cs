@@ -7,7 +7,7 @@ namespace Whatsapp.Controllers.Api
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ContactsController: Controller
+    public class ContactsController : Controller
     {
         private readonly IContactsRepository _contactsRepo;
 
@@ -31,7 +31,7 @@ namespace Whatsapp.Controllers.Api
         [HttpPost]
         public async Task<IActionResult> CreateContactAsync([FromBody] ContactCreateDto dto)
         {
-            if (dto is null)
+            if (dto == null)
             {
                 return BadRequest();
             }
@@ -48,6 +48,19 @@ namespace Whatsapp.Controllers.Api
             }
 
             return StatusCode(500);
+        }
+
+        [HttpGet("users/with")]
+        public async Task<IActionResult> GetContactByUsersAsync([FromQuery]int User1Id, [FromQuery]int User2Id)
+        {
+            var contact = await _contactsRepo.GetContactWithUsers(User1Id, User2Id);
+            if (contact is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(contact);
+
         }
     }
 }

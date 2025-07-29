@@ -6,7 +6,7 @@ namespace Whatsapp.Controllers.Api
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController: Controller
+    public class UserController : Controller
     {
         private readonly IUserRepository _userRepo;
 
@@ -25,6 +25,7 @@ namespace Whatsapp.Controllers.Api
             {
                 return NotFound();
             }
+
             return Ok(user);
         }
 
@@ -45,6 +46,8 @@ namespace Whatsapp.Controllers.Api
             {
                 return NotFound();
             }
+
             return Ok(user);
         }
+    }
 }

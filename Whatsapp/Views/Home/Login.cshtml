@@ -1,0 +1,46 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+<div class="w-[500px] d-flex flex-column gap-2">
+    <h2>Login to Whatsapp</h2>
+    <div class="">
+        <input id="phoneInput" type="text" class="w-[200px]" placeholder="Enter your phone number"/>
+    </div>
+    <div class="">
+        <button id="btnLogin" class="btn w-[200px] btn-primary">Login</button>
+    </div>
+</div>
+
+<script>
+    const phoneInput = document.getElementById("phoneInput");
+    const btnLogin = document.getElementById("btnLogin");
+
+    btnLogin.addEventListener('click',async function () {
+        const phone = phoneInput.value;
+        if (phone == ""){
+            alert("Enter the phone number!");
+        }
+        await verifyPhone(phone);
+    });
+
+    async function verifyPhone(phone){
+        const response = await fetch(`/api/user/phone/${phone}`,{
+            method: 'GET'
+        });
+
+        if (response.status == 404) {
+            alert("Phone number not found. Please register first.");
+            phoneInput.value = "";
+            return;
+        } else if (response.status == 200){
+            const data = await response.json();
+            console.log(data);
+            localStorage.setItem("userId", JSON.stringify(data.id));
+            window.location.href = '/Home/Contacts'
+        }
+    }
+
+</script>

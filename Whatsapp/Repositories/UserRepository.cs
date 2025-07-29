@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using Whatsapp.Data;
 using Whatsapp.Interfaces;
 using Whatsapp.Models;
@@ -29,8 +30,9 @@ namespace Whatsapp.Repositories
 
             var userContacts = contactsList.Select(c => c.User1Id == userId ? c.User2Id : c.User1Id);
 
+            var contactsSet = new HashSet<int>(userContacts);
             var contacts = await _context.Users
-                .Where(u => u.Id == userId)
+                .Where(u => contactsSet.Contains(u.Id))
                 .ToListAsync();
 
             return contacts;
@@ -41,6 +43,17 @@ namespace Whatsapp.Repositories
             return await _context.Users
                 .Where(u => u.Phone == phoneNumber)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<bool> AddUserAsync(User user)
+        {
+            await _context.Users.AddAsync(user);
+            return await SaveChangesAsync();
+        }
+
+        public async Task<bool> SaveChangesAsync()
+        {
+            return (await _context.SaveChangesAsync()) > 0;
         }
     }
 }
